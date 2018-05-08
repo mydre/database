@@ -1,0 +1,39 @@
+SYS 口令：
+bird_fly
+
+SYSTEM口令：
+to_the_sky
+
+删除表空间
+SQL> drop tablespace tpyb including contents;
+
+sqlplus登陆
+sqlplus "system/to_the_sky@tpyb"
+
+创建数据库文件：
+create tablespace tpyb logging datafile 'C:\oracle\oradata\tpyb\tpyb.dbf' size 100M autoextend on next 32M maxsize 500M extent management local;
+
+创建数据库临时文件：
+create temporary tablespace tpyb_temp tempfile 'C:\oracle\oradata\tpyb\tpyb_temp.dbf' size 100M autoextend on next 32M maxsize 500M extent management local;
+
+创建用户与上述两个文件形成关系：
+create user tpybt identified by tpybt123 default tablespace tpyb temporary tablespace tpyb_temp;
+
+添加用户权限
+grant connect,resource,dba to tpybt;
+grant create session to tpybt;
+grant create any table to tpybt;
+grant select any table to tpybt;
+grant insert any table to tpybt;
+grant delete any table to tpybt;
+grant update any table to tpybt;
+
+
+-- 将数据库tpyb中tpybt用户的表导出
+
+exp system/to_the_sky@tpyb file="c:\tpybt\tpyb190_owner_20180419.dmp" owner=tpybt
+
+-- 所有对象全部导入到指定的账户下：其中fromuser=tpybt为.dmp文件里的对象的原先的owner, touser=tpybt 为作为导入的对象的新数据库中的Owner.
+-- 其中ignore=y告诉imp.exe把数据直接插入到相应对象（并且如果导入的对象里面有其他的对象，如约束，索引等，会在数据插入后被创建）。
+imp tpybt/tpybt123@tpyb file="C:\NickWorks\projectDocs\TaiPingYBT\DBTABLE\tpyb190_owner_20180419.dmp" fromuser=tpybt touser=tpybt ignore=y
+
